@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.10)
+project(marblemachine)
+
+import_arduino_library(cores ${COREPATH} avr debug util)
+import_arduino_library(SPI ${DEPSPATH}/SPI)
+import_arduino_library(SdFat ${DEPSPATH}/SdFat/src common DigitalIO ExFatLib FatLib FsLib iostream SdCard SpiDriver)
+import_arduino_library(SD ${DEPSPATH}/SD/src)
+import_arduino_library(SerialFlash ${DEPSPATH}/SerialFlash util)
+import_arduino_library(Wire ${DEPSPATH}/Wire utility)
+import_arduino_library(arm_math ${DEPSPATH}/arm_math/src)
+import_arduino_library(Audio ${DEPSPATH}/Audio utility)
+import_arduino_library(MIDI ${DEPSPATH}/MIDI/src)
+import_arduino_library(TeensyVariablePlayback ${DEPSPATH}/teensy-variable-playback src)
+import_arduino_library(midi_smf_reader ${DEPSPATH}/midi-smf-reader/src)
+import_arduino_library(teensypolyphony ${DEPSPATH}/teensy-polyphony/src)
+import_arduino_library(sampleflashloader ${DEPSPATH}/teensy-sample-flashloader/src)
+import_arduino_library(teensyquencer ${DEPSPATH}/teensy-quencer/src)
+
+teensy_add_executable(marblemachine marblemachine.ino)
+
+teensy_target_link_libraries(marblemachine    teensypolyphony midi_smf_reader teensyquencer sampleflashloader TeensyVariablePlayback Audio arm_math SD SdFat  SPI SerialFlash  Wire  cores)
+target_link_libraries(marblemachine.elf m)
