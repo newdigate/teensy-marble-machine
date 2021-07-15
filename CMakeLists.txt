@@ -17,8 +17,9 @@ import_arduino_library(sampleflashloader ${DEPSPATH}/teensy-sample-flashloader/s
 import_arduino_library(teensyquencer ${DEPSPATH}/teensy-quencer/src)
 import_arduino_library(ST7735_t3 ${DEPSPATH}/ST7735_t3)
 import_arduino_library(arduino_tftpianoview ${DEPSPATH}/arduino-tftpianoview/src)
+import_arduino_library(teensy_audio_display_components ${DEPSPATH}/teensy-audio-display-components/src)
 
 teensy_add_executable(marblemachine marblemachine.ino)
 
-teensy_target_link_libraries(marblemachine   arduino_tftpianoview ST7735_t3 teensypolyphony midi_smf_reader teensyquencer sampleflashloader TeensyVariablePlayback Audio arm_math SD SdFat  SPI SerialFlash  Wire  cores)
+teensy_target_link_libraries(marblemachine teensy_audio_display_components  arduino_tftpianoview ST7735_t3 teensypolyphony midi_smf_reader teensyquencer sampleflashloader TeensyVariablePlayback Audio arm_math SD SdFat  SPI SerialFlash  Wire  cores)
 target_link_libraries(marblemachine.elf m)

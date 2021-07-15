@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <MIDI.h>
 #include <Audio.h>
+#include <ST7735_t3.h> // Hardware-specific library
 #include "sampler.h"
 #include "flashloader.h"
 #include "midireader.h"
@@ -8,8 +9,8 @@
 #include "polyphonicsampler.h"
 #include "tempo.h"
 #include "TeensyVariablePlayback.h"
-#include <ST7735_t3.h> // Hardware-specific library
 #include "TFTPianoDisplay.h"
+#include "AudioLevelView.h"
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 #define KEY_NOTENUMBER_C5 84
@@ -44,10 +45,26 @@ AudioEffectEnvelope      envelope16;     //xy=570,941
 AudioEffectEnvelope      envelope15;     //xy=572,900
 AudioEffectEnvelope      envelope13;     //xy=574,793
 AudioEffectEnvelope      envelope14;     //xy=574,836
-AudioMixer4              mixer3;         //xy=741,624
+AudioAnalyzePeak         peak2;          //xy=731,91
+AudioAnalyzePeak         peak1;          //xy=734,46
+AudioAnalyzePeak         peak4;          //xy=741,189
+AudioAnalyzePeak         peak5;          //xy=748,427
+AudioAnalyzePeak         peak3;          //xy=753,139
 AudioMixer4              mixer2;         //xy=757,370
 AudioMixer4              mixer1;         //xy=758,280
-AudioMixer4              mixer4;         //xy=772,791
+AudioAnalyzePeak         peak7;          //xy=759,501
+AudioAnalyzePeak         peak8;          //xy=760,526
+AudioAnalyzePeak         peak9;          //xy=763,570
+AudioAnalyzePeak         peak6;          //xy=771,461
+AudioMixer4              mixer3;         //xy=772,744
+AudioMixer4              mixer4;         //xy=772,810
+AudioAnalyzePeak         peak10;         //xy=774,607
+AudioAnalyzePeak         peak12;         //xy=778,688
+AudioAnalyzePeak         peak11;         //xy=785,649
+AudioAnalyzePeak         peak14;         //xy=803,943
+AudioAnalyzePeak         peak15;         //xy=806,980
+AudioAnalyzePeak         peak13;         //xy=808,888
+AudioAnalyzePeak         peak16;         //xy=813,1025
 AudioMixer4              mixer5;         //xy=924,256
 AudioMixer4              mixer6;         //xy=934,422
 AudioMixer4              mixer7;         //xy=1194,226
@@ -70,32 +87,48 @@ AudioConnection          patchCord14(voice3, 1, envelope6, 0);
 AudioConnection          patchCord15(voice4, 0, envelope7, 0);
 AudioConnection          patchCord16(voice4, 1, envelope8, 0);
 AudioConnection          patchCord17(envelope3, 0, mixer1, 1);
-AudioConnection          patchCord18(envelope1, 0, mixer1, 0);
-AudioConnection          patchCord19(envelope2, 0, mixer2, 0);
-AudioConnection          patchCord20(envelope4, 0, mixer2, 1);
-AudioConnection          patchCord21(envelope5, 0, mixer1, 2);
-AudioConnection          patchCord22(envelope6, 0, mixer2, 2);
-AudioConnection          patchCord23(envelope7, 0, mixer1, 3);
-AudioConnection          patchCord24(envelope8, 0, mixer2, 3);
-AudioConnection          patchCord25(envelope12, 0, mixer4, 1);
-AudioConnection          patchCord26(envelope11, 0, mixer3, 1);
-AudioConnection          patchCord27(envelope10, 0, mixer4, 0);
-AudioConnection          patchCord28(envelope9, 0, mixer3, 0);
-AudioConnection          patchCord29(envelope16, 0, mixer4, 3);
-AudioConnection          patchCord30(envelope15, 0, mixer3, 3);
-AudioConnection          patchCord31(envelope13, 0, mixer3, 2);
-AudioConnection          patchCord32(envelope14, 0, mixer4, 2);
-AudioConnection          patchCord33(mixer3, 0, mixer5, 1);
-AudioConnection          patchCord34(mixer2, 0, mixer6, 0);
-AudioConnection          patchCord35(mixer1, 0, mixer5, 0);
-AudioConnection          patchCord36(mixer4, 0, mixer6, 1);
-AudioConnection          patchCord37(mixer5, 0, mixer7, 0);
-AudioConnection          patchCord38(mixer6, 0, mixer8, 0);
-AudioConnection          patchCord39(mixer7, 0, tdm1, 0);
-AudioConnection          patchCord40(mixer7, 0, tdm1, 4);
-AudioConnection          patchCord41(mixer8, 0, tdm1, 2);
-AudioConnection          patchCord42(mixer8, 0, tdm1, 6);
-AudioControlCS42448      cs42448;      //xy=821,899
+AudioConnection          patchCord18(envelope3, peak3);
+AudioConnection          patchCord19(envelope1, 0, mixer1, 0);
+AudioConnection          patchCord20(envelope1, peak1);
+AudioConnection          patchCord21(envelope2, 0, mixer2, 0);
+AudioConnection          patchCord22(envelope2, peak2);
+AudioConnection          patchCord23(envelope4, 0, mixer2, 1);
+AudioConnection          patchCord24(envelope4, peak4);
+AudioConnection          patchCord25(envelope5, 0, mixer1, 2);
+AudioConnection          patchCord26(envelope5, peak5);
+AudioConnection          patchCord27(envelope6, 0, mixer2, 2);
+AudioConnection          patchCord28(envelope6, peak6);
+AudioConnection          patchCord29(envelope7, 0, mixer1, 3);
+AudioConnection          patchCord30(envelope7, peak7);
+AudioConnection          patchCord31(envelope8, 0, mixer2, 3);
+AudioConnection          patchCord32(envelope8, peak8);
+AudioConnection          patchCord33(envelope12, 0, mixer4, 1);
+AudioConnection          patchCord34(envelope12, peak12);
+AudioConnection          patchCord35(envelope11, 0, mixer3, 1);
+AudioConnection          patchCord36(envelope11, peak11);
+AudioConnection          patchCord37(envelope10, 0, mixer4, 0);
+AudioConnection          patchCord38(envelope10, peak10);
+AudioConnection          patchCord39(envelope9, 0, mixer3, 0);
+AudioConnection          patchCord40(envelope9, peak9);
+AudioConnection          patchCord41(envelope16, 0, mixer4, 3);
+AudioConnection          patchCord42(envelope16, peak16);
+AudioConnection          patchCord43(envelope15, 0, mixer3, 3);
+AudioConnection          patchCord44(envelope15, peak15);
+AudioConnection          patchCord45(envelope13, 0, mixer3, 2);
+AudioConnection          patchCord46(envelope13, peak13);
+AudioConnection          patchCord47(envelope14, 0, mixer4, 2);
+AudioConnection          patchCord48(envelope14, peak14);
+AudioConnection          patchCord49(mixer2, 0, mixer6, 0);
+AudioConnection          patchCord50(mixer1, 0, mixer5, 0);
+AudioConnection          patchCord51(mixer3, 0, mixer5, 1);
+AudioConnection          patchCord52(mixer4, 0, mixer6, 1);
+AudioConnection          patchCord53(mixer5, 0, mixer7, 0);
+AudioConnection          patchCord54(mixer6, 0, mixer8, 0);
+AudioConnection          patchCord55(mixer7, 0, tdm1, 0);
+AudioConnection          patchCord56(mixer7, 0, tdm1, 4);
+AudioConnection          patchCord57(mixer8, 0, tdm1, 2);
+AudioConnection          patchCord58(mixer8, 0, tdm1, 6);
+AudioControlCS42448      cs42448;      //xy=793,1101
 // GUItool: end automatically generated code
 #pragma endregion
 
@@ -106,12 +139,34 @@ AudioControlCS42448      cs42448;      //xy=821,899
 ST7735_t3 tft = ST7735_t3(TFT_CS, TFT_DC, TFT_RST);
 #pragma endregion
 
+#pragma region piano views
 TFTPianoDisplay pianoDisplay1(tft, 3, 4, 4, 0); //tft, byte octaves, byte startOctave, byte x, byte y
 TFTPianoDisplay pianoDisplay2(tft, 3, 7, 4, 13); //tft, byte octaves, byte startOctave, byte x, byte y
+#pragma endregion
+
+#pragma region AudioLevelViews
+AudioLevelView levelViewVoice1 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 10, 64, 64, 1);
+AudioLevelView levelViewVoice2 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 15, 64, 64, 1);
+AudioLevelView levelViewVoice3 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 20, 64, 64, 1);
+AudioLevelView levelViewVoice4 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 25, 64, 64, 1);
+AudioLevelView levelViewVoice5 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 30, 64, 64, 1);
+AudioLevelView levelViewVoice6 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 35, 64, 64, 1);
+AudioLevelView levelViewVoice7 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 40, 64, 64, 1);
+AudioLevelView levelViewVoice8 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 45, 64, 64, 1);
+AudioLevelView levelViewVoice9 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 50, 64, 64, 1);
+AudioLevelView levelViewVoice10 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 55, 64, 64, 1);
+AudioLevelView levelViewVoice11 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 60, 64, 64, 1);
+AudioLevelView levelViewVoice12 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 65, 64, 64, 1);
+AudioLevelView levelViewVoice13 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 70, 64, 64, 1);
+AudioLevelView levelViewVoice14 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 75, 64, 64, 1);
+AudioLevelView levelViewVoice15 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 80, 64, 64, 1);
+AudioLevelView levelViewVoice16 = AudioLevelView(tft, ST7735_GREEN, ST7735_BLACK, 85, 64, 64, 1);
+AudioLevelView *levelViews[] = {&levelViewVoice1, &levelViewVoice2,  &levelViewVoice3,  &levelViewVoice4,  &levelViewVoice5,  &levelViewVoice6,  &levelViewVoice7,  &levelViewVoice8,
+                                &levelViewVoice9, &levelViewVoice10, &levelViewVoice11, &levelViewVoice12, &levelViewVoice13, &levelViewVoice14, &levelViewVoice15, &levelViewVoice16};
+#pragma endregion
 
 sampler                 _sampler;
 newdigate::audiosample  *sample1, *sample2, *sample3, *sample4, *sample5;
-
 void handleNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity)
 {
     _sampler.noteEvent(pitch, velocity, true, false);
@@ -134,6 +189,7 @@ midisequenceadapter _adapter(_multisequencer); // to read midi files into the a 
 sequencer *_sequencer;
 
 AudioPlayArrayResmp *voices[] = {&voice1, &voice2, &voice3, &voice4, &voice5, &voice6, &voice7, &voice8};
+AudioAnalyzePeak *peaks[] = {&peak1, &peak2, &peak3, &peak4, &peak5, &peak6, &peak7, &peak8, &peak9, &peak10, &peak11, &peak12, &peak13, &peak14, &peak15, &peak16};
 
 void setup() {
     Serial.begin(9600);
@@ -155,10 +211,8 @@ void setup() {
         voices[i]->begin();
     }
 
-
     mixer7.gain(0, 0.35);
     mixer8.gain(0, 0.35);
-    
     
     envelope1.attack(0);
     envelope2.attack(0);
@@ -236,7 +290,6 @@ void setup() {
         } 
     };  
 
-
     if (SD.exists("wilson.jpg")) {
         Serial.println("drawing wilson...");
         File wilson = SD.open("wilson.jpg");
@@ -254,7 +307,12 @@ void loop() {
         pianoDisplay1.drawPiano();
     if (pianoDisplay2.displayNeedsUpdating())
         pianoDisplay2.drawPiano();
-        
+
+    for (int i=0; i < 16; i++) {
+        if (peaks[i]->available() )         {
+            levelViews[i]->updateLevel(peaks[i]->read());
+        }
+    }
 }
 
 namespace std {
